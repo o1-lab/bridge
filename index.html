@@ -489,6 +489,49 @@
         }
         .gigantic .acc { color: var(--yellow); }
 
+        /* ---------- QR CARD ---------- */
+        .qr-card {
+            position: absolute;
+            bottom: 80px;
+            right: 88px;
+            background: var(--cream);
+            padding: 18px 18px 14px;
+            transform: rotate(2deg);
+            box-shadow: -8px 8px 0 var(--yellow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 5;
+            text-decoration: none;
+            color: var(--dark);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .qr-card:hover { transform: rotate(0deg) scale(1.04); }
+        .qr-canvas {
+            width: 168px;
+            height: 168px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--cream);
+        }
+        .qr-canvas svg { width: 100%; height: 100%; display: block; }
+        .qr-eyebrow {
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--grey);
+        }
+        .qr-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--dark);
+        }
+
         /* ---------- WATERMARK ---------- */
         .watermark {
             position: absolute;
@@ -540,6 +583,8 @@
             .slide-body.split { grid-template-columns: 1fr; gap: 40px; }
             .examples { grid-template-columns: 1fr; }
             .recipe-line { grid-template-columns: 48px 1fr; gap: 20px; }
+            .qr-card { bottom: 72px; right: 32px; padding: 14px 14px 10px; }
+            .qr-canvas { width: 132px; height: 132px; }
         }
 
         button:focus-visible { outline: 2px solid var(--yellow); outline-offset: 4px; }
@@ -795,6 +840,11 @@
                     o1lab × arrayah · may 17 → may 24
                 </div>
             </div>
+            <a class="qr-card" href="https://github.com/o1-lab" target="_blank" rel="noopener" aria-label="Open github.com/o1-lab">
+                <span class="qr-eyebrow">scan · the code</span>
+                <div id="qr-final" class="qr-canvas"></div>
+                <span class="qr-label">github.com/o1-lab</span>
+            </a>
         </section>
 
     </div>
@@ -807,7 +857,17 @@
 
     <div class="hint">← → arrows · or click</div>
 
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <script>
+        (function () {
+            if (typeof qrcode === 'function') {
+                const qr = qrcode(0, 'M');
+                qr.addData('https://github.com/o1-lab');
+                qr.make();
+                const el = document.getElementById('qr-final');
+                if (el) el.innerHTML = qr.createSvgTag({ scalable: true });
+            }
+        })();
         (function () {
             const slides = Array.from(document.querySelectorAll('.slide'));
             const total = slides.length;
