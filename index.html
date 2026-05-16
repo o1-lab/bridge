@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>o1 bridge — kickoff · may 17</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --yellow: #D9B834;
+            --yellow-light: #EDD87A;
+            --yellow-pale: #F5ECBF;
+            --yellow-glow: #F0D04A;
+            --dark: #1B1B1B;
+            --cream: #FAF7EE;
+            --grey: #9E9E8E;
+            --mid: #4A4A42;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background: var(--dark);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            color: var(--dark);
+            cursor: crosshair;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection { background: var(--yellow); color: var(--dark); }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ---------- DECK ---------- */
+        .deck { position: fixed; inset: 0; overflow: hidden; }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            background: var(--cream);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px) scale(0.99);
+            transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+                        visibility 0s linear 0.55s;
+            padding: 80px 88px 96px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .slide.dark { background: var(--dark); color: var(--cream); }
+        .slide.yellow { background: var(--yellow); }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+                        visibility 0s linear 0s;
+        }
+
+        .slide-meta {
+            position: absolute;
+            top: 32px;
+            left: 88px;
+            right: 88px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--grey);
+            z-index: 5;
+        }
+        .slide.dark .slide-meta { color: rgba(250, 247, 238, 0.45); }
+        .slide.yellow .slide-meta { color: rgba(27, 27, 27, 0.5); }
+
+        .slide-meta .logo {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: -0.5px;
+            color: var(--dark);
+            text-transform: none;
+        }
+        .slide-meta .logo span { font-weight: 300; opacity: 0.55; }
+        .slide.dark .slide-meta .logo { color: var(--cream); }
+        .slide-meta .index { font-variant-numeric: tabular-nums; }
+
+        /* ---------- TYPE BUILDING BLOCKS ---------- */
+        .eyebrow {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--grey);
+            margin-bottom: 28px;
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .eyebrow::before {
+            content: '';
+            width: 24px;
+            height: 1px;
+            background: currentColor;
+        }
+        .slide.dark .eyebrow { color: var(--yellow); }
+        .slide.yellow .eyebrow { color: var(--dark); }
+
+        h1.headline {
+            font-size: clamp(56px, 8vw, 140px);
+            font-weight: 700;
+            line-height: 0.92;
+            letter-spacing: -3.5px;
+        }
+        h2.headline {
+            font-size: clamp(40px, 5.6vw, 96px);
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+        h3.subhead {
+            font-size: clamp(24px, 2.4vw, 32px);
+            font-weight: 700;
+            letter-spacing: -0.6px;
+            line-height: 1.1;
+        }
+
+        .lede {
+            font-size: clamp(18px, 1.5vw, 22px);
+            line-height: 1.55;
+            font-weight: 300;
+            letter-spacing: -0.2px;
+            max-width: 680px;
+        }
+        .lede em {
+            font-style: normal;
+            font-weight: 500;
+            background: linear-gradient(transparent 62%, var(--yellow-pale) 62%);
+            padding: 0 2px;
+        }
+        .slide.dark .lede em {
+            background: linear-gradient(transparent 62%, rgba(217, 184, 52, 0.32) 62%);
+            color: var(--yellow);
+        }
+        .slide.yellow .lede em {
+            background: linear-gradient(transparent 62%, var(--cream) 62%);
+        }
+
+        .mono {
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .wobble-o {
+            display: inline-block;
+            color: var(--yellow);
+            animation: wobble 4s ease-in-out infinite;
+        }
+        @keyframes wobble {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+
+        .acc-yellow { color: var(--yellow); }
+
+        /* ---------- CONTROLS ---------- */
+        .controls {
+            position: fixed;
+            bottom: 32px;
+            right: 88px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            z-index: 100;
+            mix-blend-mode: difference;
+            color: var(--cream);
+        }
+        .controls button {
+            background: transparent;
+            border: 1.5px solid var(--cream);
+            color: var(--cream);
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 1.5px;
+            padding: 10px 14px;
+            cursor: crosshair;
+            transition: all 0.25s;
+            text-transform: uppercase;
+        }
+        .controls button:hover { background: var(--cream); color: var(--dark); }
+        .controls .counter {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        .progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            background: var(--yellow);
+            z-index: 200;
+            transition: width 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 12px var(--yellow-glow);
+        }
+
+        .hint {
+            position: fixed;
+            bottom: 38px;
+            left: 88px;
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            z-index: 100;
+            mix-blend-mode: difference;
+            color: var(--cream);
+            opacity: 0.45;
+        }
+
+        /* ---------- COVER ---------- */
+        .cover { display: grid; grid-template-columns: 1.05fr 1fr; padding: 0; }
+        .cover-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 96px 72px 88px;
+            background: var(--cream);
+        }
+        .cover-left .top-mark {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--grey);
+        }
+        .cover-title {
+            font-size: clamp(80px, 12vw, 200px);
+            font-weight: 700;
+            line-height: 0.86;
+            letter-spacing: -6px;
+        }
+        .cover-foot {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--grey);
+        }
+        .cover-right {
+            background: var(--yellow);
+            position: relative;
+            overflow: hidden;
+        }
+        .geo-circle {
+            position: absolute;
+            top: 50%; left: 50%;
+            border: 2px solid var(--dark);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .geo-circle.lg { width: 70%; aspect-ratio: 1; animation: breathe 6s ease-in-out infinite; }
+        .geo-circle.md { width: 48%; aspect-ratio: 1; border-style: dashed; animation: solar 10s ease-in-out infinite; }
+        .geo-circle.sm { width: 22%; aspect-ratio: 1; background: var(--dark); animation: breathe-sm 6s ease-in-out -2s infinite; }
+        @keyframes breathe {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+        @keyframes breathe-sm {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.08); }
+        }
+        @keyframes solar {
+            0%, 100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); border-radius: 50%; }
+            33% { transform: translate(-50%, -50%) scale(1.06) rotate(120deg); border-radius: 42% 58% 60% 40% / 50% 45% 55% 50%; }
+            66% { transform: translate(-50%, -50%) scale(0.96) rotate(240deg); border-radius: 55% 45% 50% 50% / 40% 60% 40% 60%; }
+        }
+
+        /* ---------- LAYOUT HELPERS ---------- */
+        .slide-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+            min-height: 0;
+        }
+        .slide-body.split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 88px;
+            align-items: center;
+        }
+        .slide-body.centered { align-items: flex-start; justify-content: center; }
+
+        /* ---------- RECIPE ---------- */
+        .recipe {
+            display: flex;
+            flex-direction: column;
+            max-width: 1080px;
+            margin-top: 16px;
+        }
+        .recipe-line {
+            display: grid;
+            grid-template-columns: 64px 1fr;
+            align-items: baseline;
+            gap: 32px;
+            padding: 22px 0;
+            border-bottom: 1.5px solid rgba(27, 27, 27, 0.08);
+        }
+        .recipe-line:last-child { border-bottom: none; }
+        .recipe-num {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: var(--grey);
+        }
+        .recipe-word {
+            font-size: clamp(32px, 4.4vw, 68px);
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            line-height: 1;
+        }
+        .recipe-word .acc { color: var(--yellow); }
+        .recipe-word .dim { color: var(--grey); font-weight: 300; }
+
+        /* ---------- EXAMPLES ---------- */
+        .examples {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2px;
+            margin-top: 40px;
+            background: var(--dark);
+            border: 2px solid var(--dark);
+        }
+        .ex {
+            background: var(--cream);
+            padding: 32px 32px;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: background 0.4s;
+            position: relative;
+        }
+        .ex:hover { background: var(--yellow); }
+        .ex .ex-num {
+            position: absolute;
+            top: 18px; right: 22px;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--grey);
+        }
+        .ex h4 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+        .ex p {
+            font-size: 14px;
+            line-height: 1.55;
+            color: var(--mid);
+            font-weight: 300;
+            max-width: 320px;
+        }
+
+        /* ---------- TIMELINE ---------- */
+        .timeline { position: relative; margin-top: 24px; }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: var(--yellow);
+        }
+        .t-item { position: relative; padding-left: 56px; padding-bottom: 36px; }
+        .t-item:last-child { padding-bottom: 0; }
+        .t-item::before {
+            content: '';
+            position: absolute;
+            left: 3px;
+            top: 4px;
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            background: var(--yellow);
+            border: 3px solid var(--dark);
+            box-shadow: 0 0 0 4px var(--cream);
+        }
+        .slide.dark .t-item::before { box-shadow: 0 0 0 4px var(--dark); }
+        .t-item .when {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--grey);
+            margin-bottom: 6px;
+        }
+        .t-item h4 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        /* ---------- LAB TAGS ---------- */
+        .tag-list { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+        .tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border: 1.5px solid var(--dark);
+            padding: 9px 16px;
+            border-radius: 999px;
+            color: var(--dark);
+        }
+
+        /* ---------- PRIZE ---------- */
+        .prize-card {
+            background: var(--cream);
+            color: var(--dark);
+            padding: 48px 44px;
+            position: relative;
+            transform: rotate(-1deg);
+            box-shadow: 10px 10px 0 var(--yellow);
+            max-width: 480px;
+        }
+        .prize-mono {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--mid);
+            margin-bottom: 14px;
+        }
+        .prize-card h3 {
+            font-size: clamp(36px, 4.2vw, 56px);
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            line-height: 0.95;
+        }
+        .prize-card .prize-desc {
+            font-size: 14px;
+            line-height: 1.6;
+            font-weight: 300;
+            margin-top: 18px;
+            color: var(--mid);
+            max-width: 360px;
+        }
+
+        /* ---------- FINAL ---------- */
+        .final {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 32px;
+        }
+        .gigantic {
+            font-size: clamp(96px, 16vw, 260px);
+            font-weight: 700;
+            line-height: 0.85;
+            letter-spacing: -10px;
+        }
+        .gigantic .acc { color: var(--yellow); }
+
+        /* ---------- WATERMARK ---------- */
+        .watermark {
+            position: absolute;
+            font-size: clamp(140px, 24vw, 380px);
+            font-weight: 700;
+            letter-spacing: -10px;
+            color: var(--dark);
+            opacity: 0.04;
+            pointer-events: none;
+            white-space: nowrap;
+            line-height: 1;
+        }
+        .slide.dark .watermark { color: var(--cream); opacity: 0.05; }
+        .slide.yellow .watermark { opacity: 0.08; }
+
+        /* ---------- BLACKBIRD ---------- */
+        .blackbird-mark {
+            color: var(--cream);
+            width: min(78%, 1080px);
+            display: block;
+        }
+        .blackbird-mark svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .thanks-line {
+            font-size: clamp(20px, 1.7vw, 26px);
+            line-height: 1.5;
+            font-weight: 300;
+            color: rgba(250, 247, 238, 0.78);
+            max-width: 720px;
+            letter-spacing: -0.2px;
+        }
+        .thanks-line em {
+            font-style: normal;
+            font-weight: 500;
+            color: var(--yellow);
+        }
+
+        /* responsive */
+        @media (max-width: 900px) {
+            .slide { padding: 72px 32px 100px; }
+            .slide-meta { left: 32px; right: 32px; }
+            .controls { right: 32px; }
+            .hint { left: 32px; }
+            .cover { grid-template-columns: 1fr; grid-template-rows: 0.8fr 1fr; }
+            .cover-left { padding: 72px 32px 56px; }
+            .slide-body.split { grid-template-columns: 1fr; gap: 40px; }
+            .examples { grid-template-columns: 1fr; }
+            .recipe-line { grid-template-columns: 48px 1fr; gap: 20px; }
+        }
+
+        button:focus-visible { outline: 2px solid var(--yellow); outline-offset: 4px; }
+    </style>
+</head>
+<body>
+    <div class="progress" id="progress"></div>
+
+    <div class="deck" id="deck">
+
+        <!-- ============ 01 — COVER ============ -->
+        <section class="slide cover active">
+            <div class="cover-left">
+                <div class="top-mark">kickoff · may 17 · 2026</div>
+                <div>
+                    <h1 class="cover-title">o<span class="wobble-o">1</span><br>bridge</h1>
+                </div>
+                <div class="cover-foot">o1lab × arrayah</div>
+            </div>
+            <div class="cover-right">
+                <div class="geo-circle lg"></div>
+                <div class="geo-circle md"></div>
+                <div class="geo-circle sm"></div>
+            </div>
+        </section>
+
+        <!-- ============ 02 — o1lab IS AN EXPERIMENT ============ -->
+        <section class="slide">
+            <div class="slide-meta">
+                <div class="logo">o1<span>lab</span></div>
+                <div class="index"><span class="cur">02</span> / <span class="total">11</span></div>
+            </div>
+            <div class="watermark" style="bottom: -60px; left: -40px;">lab.</div>
+            <div class="slide-body">
+                <div class="eyebrow">where we are</div>
+                <h1 class="headline">o1lab is an<br>experiment.</h1>
+                <p class="lede" style="margin-top: 36px;">
+                    A space, some tools, and an open door — to see what happens when curious people have somewhere to <em>just make things</em>.
+                </p>
+                <p class="lede" style="margin-top: 16px; color: var(--mid);">
+                    o1 bridge is the first round of finding out.
+                </p>
+            </div>
+        </section>
+
+        <!-- ============ 03 — THE BRIEF ============ -->
+        <section class="slide yellow">
+            <div class="slide-meta">
+                <div class="logo">o1<span>lab</span></div>
+                <div class="index"><span class="cur">03</span> / <span class="total">11</span></div>
+            </div>
+            <div class="slide-body" style="justify-content: center;">
+                <div class="eyebrow">the brief</div>
+                <h1 class="headline">Bring AI into<br>the physical world.</h1>
+            </div>
+        </section>
+
+        <!-- ============ 04 — THE CONSTRAINT ============ -->
+        <section class="slide dark">
+            <div class="slide-meta">
+                <div class="logo">o1<span>lab</span></div>
+                <div class="index"><span class="cur">04</span> / <span class="total">11</span></div>
+            </div>
+            <div class="slide-body" style="justify-content: center;">
+                <div class="eyebrow">the constraint</div>
+                <h1 class="headline" style="color: var(--cream);">
+                    Not as<br>a robot.
+                </h1>
+            </div>
+        </section>
+
+        <!-- ============ 05 — THE RECIPE ============ -->
+        <section class="slide">
+            <div class="slide-meta">
+                <div class="logo">o1<span>lab</span></div>
+                <div class="index"><span class="cur">05</span> / <span class="total">11</span></div>
+            </div>
+            <div class="slide-body">
+                <div class="eyebrow">the recipe</div>
+                <div class="recipe">
+                    <div class="recipe-line">
+                        <span class="recipe-num">01</span>
+                        <span class="recipe-word">An <span class="acc">ESP32</span>.</span>
+                    </div>
+                    <div class="recipe-line">
+                        <span class="recipe-num">02</span>
+                        <span class="recipe-word">A sensor, or an actuator.</span>
+                    </div>
+                    <div class="recipe-line">
+                        <span class="recipe-num">03</span>
+                        <span class="recipe-word">Exposed over <span class="acc">WiFi</span>.</span>
+                    </div>
+                    <div class="recipe-line">
+                        <span class="recipe-num">04</span>
+                        <span class="recipe-word">A story about the bridge.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 06 — LIKE THIS ============ -->
+        <section class="slide">
+            <div class="slide-meta">
+                <div class="logo">o1<span>lab</span></div>
+                <div class="index"><span class="cur">06</span> / <span class="total">11</span></div>
+            </div>
+            <div class="slide-body">
+                <div class="eyebrow">like this — or further</div>
+                <h2 class="headline">A doorbell.<br>A desk. <span style="color: var(--grey); font-weight: 300;">A teapot.</span></h2>
+                <div class="examples">
+                    <div class="ex">
+                        <span class="ex-num">01</span>
+                        <div>
+                            <h4>AI doorbell</h4>
+                            <p>Camera, vision model, opinions. Texts you who's at the door — and what they're carrying.</p>
+                        </div>
+                    </div>
+                    <div class="ex">
+                        <span class="ex-num">02</span>
+                        <div>
+                            <h4>Desk tracker</h4>
+                            <p>A sensor watching your desk. Nudges you when you slump, drift, or leave the kettle on.</p>
+                        </div>
+                    </div>
+                    <div class="ex">
+                        <span class="ex-num">03</span>
+                        <div>
+                            <h4>Plant whisperer</h4>
+                            <p>Soil, light, temp. Your basil sends you weary text messages.</p>
+                        </div>
+                    </div>
+                    <div class="ex">
+                        <span class="ex-num">04</span>
+                        <div>
+                            <h4>Street diary</h4>
+                            <p>Counts what nobody is counting — birds, cars, footsteps — and writes the day up.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 07 — THE WEEK ============ -->
+        <section class="slide">
+            <div class="slide-meta">
+                <div class="logo">o1<span>lab</span></div>
+                <div class="index"><span class="cur">07</span> / <span class="total">11</span></div>
+            </div>
+            <div class="slide-body split">
+                <div>
+                    <div class="eyebrow">the week</div>
+                    <h2 class="headline">May 17<br>→ May 24.</h2>
+                </div>
+                <div class="timeline">
+                    <div class="t-item">
+                        <div class="when">today · sat 17 may</div>
+                        <h4>Kickoff</h4>
+                    </div>
+                    <div class="t-item">
+                        <div class="when">mon — fri</div>
+                        <h4>Open lab. Build.</h4>
+                    </div>
+                    <div class="t-item">
+                        <div class="when">sat 24 may · 3pm</div>
+                        <h4>Demos & mixer</h4>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 08 — THE LAB ============ -->
+        <section class="slide">
+            <div class="slide-meta">
+                <div class="logo">o1<span>lab</span></div>
+                <div class="index"><span class="cur">08</span> / <span class="total">11</span></div>
+            </div>
+            <div class="slide-body">
+                <div class="eyebrow">what's on the shelves</div>
+                <h2 class="headline">The lab is<br>yours all week.</h2>
+                <div class="tag-list" style="margin-top: 48px; max-width: 880px;">
+                    <span class="tag">esp32 · pi · arduino</span>
+                    <span class="tag">sensors · actuators · cameras</span>
+                    <span class="tag">3d printers</span>
+                    <span class="tag">laser cutter</span>
+                    <span class="tag">soldering</span>
+                    <span class="tag">oscilloscopes</span>
+                    <span class="tag">build buddies</span>
+                </div>
+                <p class="lede mono" style="font-size: 11px; color: var(--grey); margin-top: 40px;">
+                    full list — o1lab.xyz
+                </p>
+            </div>
+        </section>
+
+        <!-- ============ 09 — THE PRIZE ============ -->
+        <section class="slide dark">
+            <div class="slide-meta">
+                <div class="logo">o1<span>lab</span></div>
+                <div class="index"><span class="cur">09</span> / <span class="total">11</span></div>
+            </div>
+            <div class="slide-body split">
+                <div>
+                    <div class="eyebrow">grand prize</div>
+                    <h2 class="headline" style="color: var(--cream);">A new<br>3D printer.</h2>
+                    <p class="lede" style="color: rgba(250,247,238,0.7); margin-top: 32px;">
+                        Plus category prizes — microcontroller kits, electronics bundles, parts.
+                    </p>
+                </div>
+                <div style="display: flex; justify-content: center;">
+                    <div class="prize-card">
+                        <div class="prize-mono">winner takes home</div>
+                        <h3>Bambu Lab<br>P1S.</h3>
+                        <p class="prize-desc">Fully enclosed, multi-colour, quietly absurd. Take it home. Start your own garage.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 10 — SPECIAL THANKS ============ -->
+        <section class="slide dark">
+            <div class="slide-meta">
+                <div class="logo">o1<span>lab</span></div>
+                <div class="index"><span class="cur">10</span> / <span class="total">11</span></div>
+            </div>
+            <div class="slide-body" style="justify-content: center; align-items: flex-start; gap: 40px;">
+                <div class="eyebrow">with special thanks to</div>
+                <div class="blackbird-mark" aria-label="Blackbird Foundation">
+                    <svg viewBox="0 0 1688 108" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M311.749 0C281.163 0 262.029 23.4739 262.029 54.2023H262.014C262.014 85.3741 282.747 107.834 311.876 107.834C326.226 107.834 336.237 103.479 343.333 96.8101C350.286 90.3002 354.199 81.4618 354.785 72.3225H334.209C332.911 83.1883 324.215 90.5853 311.892 90.5853C294.484 90.5853 283.476 74.7776 283.476 54.2023C283.476 33.627 292.599 17.6767 311.733 17.6767C323.914 17.6767 331.739 24.4876 333.623 34.9258H354.5C352.33 15.2216 337.266 0 311.749 0ZM116.085 2.02734H95.0822V105.664H164.791V88.1301H116.085V2.02734ZM46.3776 2.02744H0V105.664H47.5497C58.5581 105.664 67.6974 102.607 73.6372 97.3962C79.7195 92.1851 82.7606 85.5167 82.7606 75.8072C82.7606 63.0406 74.936 53.4737 63.4841 50.1474V49.7197C73.1937 46.3776 79.7195 39.5667 79.7195 28.986C79.7195 20.8763 77.106 14.6356 71.4513 9.56697C66.0818 4.78349 57.5444 2.02744 46.3776 2.02744ZM59.1283 31.3144C59.1283 39.4242 52.8876 43.78 43.7641 43.78H21.003V19.1339H44.1918C53.4737 19.1339 59.1283 23.6323 59.1283 31.3144ZM45.2213 88.2727H21.0188H21.003V59.2867H44.6353C54.2023 59.2867 61.4567 64.3553 61.4567 74.2074C61.4567 82.6181 55.3744 88.2727 45.2213 88.2727ZM205.357 2.02744H227.105L263.63 105.664H241.74L234.787 83.6318H197.39L190.579 105.664H169.275L205.357 2.02744ZM202.316 67.539H229.702L220.42 37.6818C218.678 32.1697 216.223 21.7316 216.223 21.7316H215.938C215.938 21.7316 213.324 32.1697 211.582 37.6818L202.3 67.539H202.316ZM365.651 2.02734H386.669V43.3364L426.521 2.02734H452.609L412.028 43.4789L455.222 105.664H430.576L397.234 57.2592L386.654 67.9824V105.664H365.635V2.02734H365.651ZM509.71 2.02734H463.348V105.664H510.882C521.89 105.664 531.029 102.607 536.969 97.3961C543.052 92.185 546.093 85.5166 546.093 75.8071C546.093 63.0405 538.268 53.4736 526.816 50.1473V49.7197C536.526 46.3775 543.052 39.5666 543.052 28.9859C543.052 20.8762 540.438 14.6355 534.783 9.56688C529.414 4.78339 520.876 2.02734 509.71 2.02734ZM522.476 31.3143C522.476 39.4241 516.235 43.7799 507.112 43.7799H484.351V19.1339H507.54C516.822 19.1339 522.476 23.6322 522.476 31.3143ZM508.553 88.2726H484.351H484.335V59.2866H507.967C517.534 59.2866 524.789 64.3552 524.789 74.2073C524.789 82.618 518.706 88.2726 508.553 88.2726ZM558.559 2.02734H579.577V105.664H558.559V2.02734ZM643.188 2.02734H595.655H595.639V105.648H616.658V64.0543H633.621C646.657 64.0543 653.041 70.4217 653.912 81.731C654.058 83.6015 654.187 85.4841 654.314 87.3275V87.3288L654.314 87.3315L654.314 87.3363L654.315 87.3469V87.348C654.945 96.5014 655.507 104.687 657.681 105.648H677.829V104.635C675.191 103.483 674.781 97.2602 674.194 88.3207C673.973 84.9703 673.728 81.2383 673.331 77.2484C672.032 64.6403 667.106 59.1282 657.539 56.3722V55.9445C670.876 52.3173 676.53 43.0513 676.53 30.8708C676.53 13.6217 663.194 2.02734 643.188 2.02734ZM638.991 47.8348H616.673V18.9913H639.577C650.728 18.9913 656.098 25.3587 656.098 33.6269C656.098 41.895 650.443 47.8348 638.991 47.8348ZM689.994 2.02744H730.432C758.119 2.02744 775.938 24.3451 775.938 54.9309C775.938 71.7364 770.284 86.5304 759.418 95.6539C751.736 102.037 741.741 105.648 728.69 105.648H689.994V2.02744ZM727.248 87.5441C746.968 87.5441 754.634 75.522 754.634 54.9309C754.634 34.3397 745.654 20.0051 727.818 20.0051H711.013V87.5441H727.248ZM799.997 84.6445H778.836V105.663H799.997V84.6445ZM813.193 2.02734H887.401V19.8625H834.212V44.7936H879.291V62.7713H834.212V105.68H813.193V2.02734ZM941.888 0C911.302 0 891.883 23.0463 891.883 54.0597C891.883 85.0732 911.302 107.977 941.888 107.977C972.474 107.977 991.75 85.0732 991.75 54.0597C991.75 23.0463 972.474 0 941.888 0ZM942.046 17.2491C961.022 17.2491 970.303 33.326 970.303 54.0597C970.303 74.635 961.037 90.7278 942.046 90.7278C923.055 90.7278 913.345 74.7776 913.345 54.0597C913.345 33.3418 923.07 17.2491 942.046 17.2491ZM1002.33 72.3225V2.02744H1023.35V72.3225C1023.35 83.0457 1028.72 90.5853 1042.77 90.5853C1056.1 90.5853 1062.33 82.7606 1062.33 72.0374V2.02744H1083.35V72.3225C1083.35 94.4976 1069.73 107.391 1043.2 107.391C1016.66 107.391 1002.31 94.7827 1002.31 72.3225H1002.33ZM1119.72 2.02744H1098.43V105.664H1119.15V52.1748C1119.15 44.9204 1118.56 34.0546 1118.56 34.0546H1118.84C1118.84 34.0546 1122.92 42.893 1126.24 48.4051L1161.61 105.664H1181.9V2.02744H1161.17V56.3723C1161.17 63.6267 1161.75 74.3499 1161.75 74.3499H1161.47C1161.47 74.3499 1157.56 65.5116 1154.21 59.8569L1119.72 2.02744ZM1197.84 2.02734H1238.27C1265.96 2.02734 1283.78 24.345 1283.78 54.9308C1283.78 71.7363 1278.13 86.5303 1267.26 95.6538C1259.58 102.037 1249.58 105.648 1236.53 105.648H1197.84V2.02734ZM1235.07 87.544C1254.79 87.544 1262.46 75.522 1262.46 54.9308C1262.46 34.3396 1253.48 20.005 1235.64 20.005H1218.84V87.544H1235.07ZM1339.72 2.02744H1317.98L1281.89 105.664H1303.2L1310.01 83.6318H1347.41L1354.36 105.664H1376.25L1339.72 2.02744ZM1342.32 67.539H1314.94H1314.92L1324.2 37.6818C1325.94 32.1697 1328.56 21.7316 1328.56 21.7316H1328.84C1328.84 21.7316 1331.3 32.1697 1333.04 37.6818L1342.32 67.539ZM1366.56 2.02734H1449.89V19.7041H1418.73V105.648H1397.71V19.7199H1366.56V2.02734ZM1481.61 2.02734H1460.59V105.664H1481.61V2.02734ZM1493.19 54.0597C1493.19 23.0463 1512.61 0 1543.2 0C1573.78 0 1593.06 23.0463 1593.06 54.0597C1593.06 85.0732 1573.78 107.977 1543.2 107.977C1512.61 107.977 1493.19 85.0732 1493.19 54.0597ZM1571.61 54.0597C1571.61 33.326 1562.33 17.2491 1543.35 17.2491C1524.38 17.2491 1514.65 33.3418 1514.65 54.0597C1514.65 74.7776 1524.36 90.7278 1543.35 90.7278C1562.35 90.7278 1571.61 74.635 1571.61 54.0597ZM1625.82 2.02734H1604.53V105.664H1625.25V52.1747C1625.25 44.9203 1624.66 34.0545 1624.66 34.0545H1624.94C1624.94 34.0545 1629.02 42.8929 1632.34 48.405L1667.71 105.664H1688V2.02734H1667.27V56.3722C1667.27 63.6266 1667.85 74.3498 1667.85 74.3498H1667.57C1667.57 74.3498 1663.66 65.5115 1660.31 59.8568L1625.82 2.02734Z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <p class="thanks-line">
+                    For <em>unleashing creativity in young people</em> — and for backing the kind of strange, hands-on work that o1 bridge is built on.
+                </p>
+                <div class="mono" style="font-size: 11px; color: rgba(250,247,238,0.4); letter-spacing: 3px;">
+                    blackbird.foundation
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 11 — BUILD. ============ -->
+        <section class="slide dark">
+            <div class="slide-meta">
+                <div class="logo">o1<span>lab</span></div>
+                <div class="index"><span class="cur">11</span> / <span class="total">11</span></div>
+            </div>
+            <div class="watermark" style="top: 4%; left: -30px;">build.</div>
+            <div class="slide-body final">
+                <div class="gigantic" style="color: var(--cream);">
+                    <span class="acc">build.</span>
+                </div>
+                <div class="mono" style="font-size: 11px; color: rgba(250,247,238,0.45); letter-spacing: 3px;">
+                    o1lab × arrayah · may 17 → may 24
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <div class="controls">
+        <button id="prev" aria-label="Previous slide">←</button>
+        <span class="counter"><span id="counter-cur">01</span> / <span id="counter-total">10</span></span>
+        <button id="next" aria-label="Next slide">→</button>
+    </div>
+
+    <div class="hint">← → arrows · or click</div>
+
+    <script>
+        (function () {
+            const slides = Array.from(document.querySelectorAll('.slide'));
+            const total = slides.length;
+            const progress = document.getElementById('progress');
+            const counterCur = document.getElementById('counter-cur');
+            const counterTotal = document.getElementById('counter-total');
+            const prevBtn = document.getElementById('prev');
+            const nextBtn = document.getElementById('next');
+            let current = 0;
+
+            document.querySelectorAll('.total').forEach(el => el.textContent = String(total).padStart(2, '0'));
+            counterTotal.textContent = String(total).padStart(2, '0');
+
+            function show(i) {
+                if (i < 0) i = 0;
+                if (i >= total) i = total - 1;
+                slides[current].classList.remove('active');
+                current = i;
+                slides[current].classList.add('active');
+                const pct = ((current + 1) / total) * 100;
+                progress.style.width = pct + '%';
+                counterCur.textContent = String(current + 1).padStart(2, '0');
+                const cur = slides[current].querySelector('.cur');
+                if (cur) cur.textContent = String(current + 1).padStart(2, '0');
+                history.replaceState(null, '', '#' + (current + 1));
+            }
+
+            const next = () => show(current + 1);
+            const prev = () => show(current - 1);
+
+            const startIdx = Math.max(0, Math.min(total - 1, parseInt(location.hash.slice(1), 10) - 1));
+            if (!isNaN(startIdx) && startIdx > 0) show(startIdx);
+            else show(0);
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') {
+                    e.preventDefault(); next();
+                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
+                    e.preventDefault(); prev();
+                } else if (e.key === 'Home') { show(0); }
+                else if (e.key === 'End') { show(total - 1); }
+                else if (e.key === 'f' || e.key === 'F') {
+                    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+                    else document.exitFullscreen?.();
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('button, a')) return;
+                next();
+            });
+            document.addEventListener('contextmenu', (e) => { e.preventDefault(); prev(); });
+
+            prevBtn.addEventListener('click', (e) => { e.stopPropagation(); prev(); });
+            nextBtn.addEventListener('click', (e) => { e.stopPropagation(); next(); });
+
+            let touchStartX = null;
+            window.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+            window.addEventListener('touchend', (e) => {
+                if (touchStartX == null) return;
+                const dx = e.changedTouches[0].clientX - touchStartX;
+                if (Math.abs(dx) > 50) { dx < 0 ? next() : prev(); }
+                touchStartX = null;
+            });
+        })();
+    </script>
+</body>
+</html>
