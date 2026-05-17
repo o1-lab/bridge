@@ -58,7 +58,7 @@
             transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1),
                         transform 0.55s cubic-bezier(0.4, 0, 0.2, 1),
                         visibility 0s linear 0.55s;
-            padding: 80px 88px 96px;
+            padding: clamp(56px, 6vh, 80px) clamp(40px, 6vw, 88px) clamp(72px, 8vh, 96px);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -78,9 +78,9 @@
 
         .slide-meta {
             position: absolute;
-            top: 32px;
-            left: 88px;
-            right: 88px;
+            top: clamp(20px, 3vh, 32px);
+            left: clamp(40px, 6vw, 88px);
+            right: clamp(40px, 6vw, 88px);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -189,8 +189,8 @@
         /* ---------- CONTROLS ---------- */
         .controls {
             position: fixed;
-            bottom: 32px;
-            right: 88px;
+            bottom: clamp(20px, 3vh, 32px);
+            right: clamp(40px, 6vw, 88px);
             display: flex;
             align-items: center;
             gap: 18px;
@@ -229,8 +229,8 @@
 
         .hint {
             position: fixed;
-            bottom: 38px;
-            left: 88px;
+            bottom: clamp(24px, 3.5vh, 38px);
+            left: clamp(40px, 6vw, 88px);
             font-family: 'Space Mono', monospace;
             font-size: 10px;
             letter-spacing: 2px;
@@ -388,6 +388,26 @@
             max-width: 320px;
         }
 
+        /* ---------- RULES GRID ---------- */
+        .rules-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .rules-grid .ex {
+            padding: clamp(18px, 2vw, 28px);
+            min-height: clamp(110px, 14vh, 150px);
+        }
+        .rules-grid .ex h4 {
+            font-size: clamp(17px, 1.6vw, 22px);
+            margin-bottom: 6px;
+        }
+        .rules-grid .ex p {
+            font-size: clamp(12px, 1vw, 14px);
+            line-height: 1.5;
+        }
+        @media (max-width: 1100px) {
+            .rules-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
         /* ---------- TIMELINE ---------- */
         .timeline { position: relative; margin-top: 24px; }
         .timeline::before {
@@ -413,6 +433,11 @@
             box-shadow: 0 0 0 4px var(--cream);
         }
         .slide.dark .t-item::before { box-shadow: 0 0 0 4px var(--dark); }
+        .t-item.upcoming::before {
+            background: var(--cream);
+            border-color: var(--grey);
+        }
+        .slide.dark .t-item.upcoming::before { background: var(--dark); }
         .t-item .when {
             font-family: 'Space Mono', monospace;
             font-size: 11px;
@@ -736,19 +761,19 @@
             <div class="slide-body split">
                 <div>
                     <div class="eyebrow">the week</div>
-                    <h2 class="headline">May 17<br>→ May 24.</h2>
+                    <h2 class="headline" style="white-space: nowrap;">May 17 → May 24.</h2>
                 </div>
                 <div class="timeline">
                     <div class="t-item">
-                        <div class="when">today · sat 17 may</div>
+                        <div class="when">today · sun 17 may</div>
                         <h4>Kickoff</h4>
                     </div>
-                    <div class="t-item">
+                    <div class="t-item upcoming">
                         <div class="when">mon — fri</div>
                         <h4>Open lab. Build.</h4>
                     </div>
-                    <div class="t-item">
-                        <div class="when">sat 24 may · 3pm</div>
+                    <div class="t-item upcoming">
+                        <div class="when">sun 24 may · 3pm</div>
                         <h4>Demos & mixer</h4>
                     </div>
                 </div>
@@ -779,11 +804,68 @@
             </div>
         </section>
 
-        <!-- ============ 09 — THE PRIZE ============ -->
+        <!-- ============ 09 — GROUND RULES ============ -->
+        <section class="slide">
+            <div class="slide-meta">
+                <div class="logo">o1<span>lab</span></div>
+                <div class="index"><span class="cur">09</span> / <span class="total">12</span></div>
+            </div>
+            <div class="watermark" style="bottom: -60px; right: -20px;">rules.</div>
+            <div class="slide-body">
+                <div class="eyebrow">ground rules</div>
+                <h2 class="headline" style="font-size: clamp(36px, 4.6vw, 72px);">Share the space.</h2>
+                <div class="examples rules-grid" style="margin-top: clamp(20px, 3vh, 40px);">
+                    <div class="ex">
+                        <span class="ex-num">01</span>
+                        <div>
+                            <h4>Lab's busy</h4>
+                            <p>An accelerator runs in parallel. Coworking is theirs — be a guest.</p>
+                        </div>
+                    </div>
+                    <div class="ex">
+                        <span class="ex-num">02</span>
+                        <div>
+                            <h4>Stay intentional</h4>
+                            <p>3–5 in the space at once. Plan before you turn up.</p>
+                        </div>
+                    </div>
+                    <div class="ex">
+                        <span class="ex-num">03</span>
+                        <div>
+                            <h4>Hardware is yours</h4>
+                            <p>Take what you need from the shelves. All of it — that's what it's there for.</p>
+                        </div>
+                    </div>
+                    <div class="ex">
+                        <span class="ex-num">04</span>
+                        <div>
+                            <h4>Bring it back</h4>
+                            <p>Treat the gear kindly. Return it intact for the next builder.</p>
+                        </div>
+                    </div>
+                    <div class="ex">
+                        <span class="ex-num">05</span>
+                        <div>
+                            <h4>Coordinate prints</h4>
+                            <p>One big print at 6pm, cleared by morning. Day jobs stay short.</p>
+                        </div>
+                    </div>
+                    <div class="ex">
+                        <span class="ex-num">06</span>
+                        <div>
+                            <h4>House rules</h4>
+                            <p>No kitchen, no upstairs — it's a sharehouse. Respect the residents.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 10 — THE PRIZE ============ -->
         <section class="slide dark">
             <div class="slide-meta">
                 <div class="logo">o1<span>lab</span></div>
-                <div class="index"><span class="cur">09</span> / <span class="total">11</span></div>
+                <div class="index"><span class="cur">10</span> / <span class="total">12</span></div>
             </div>
             <div class="slide-body split">
                 <div>
@@ -803,11 +885,11 @@
             </div>
         </section>
 
-        <!-- ============ 10 — SPECIAL THANKS ============ -->
+        <!-- ============ 11 — SPECIAL THANKS ============ -->
         <section class="slide dark">
             <div class="slide-meta">
                 <div class="logo">o1<span>lab</span></div>
-                <div class="index"><span class="cur">10</span> / <span class="total">11</span></div>
+                <div class="index"><span class="cur">11</span> / <span class="total">12</span></div>
             </div>
             <div class="slide-body" style="justify-content: center; align-items: flex-start; gap: 40px;">
                 <div class="eyebrow">with special thanks to</div>
@@ -825,11 +907,11 @@
             </div>
         </section>
 
-        <!-- ============ 11 — BUILD. ============ -->
+        <!-- ============ 12 — BUILD. ============ -->
         <section class="slide dark">
             <div class="slide-meta">
                 <div class="logo">o1<span>lab</span></div>
-                <div class="index"><span class="cur">11</span> / <span class="total">11</span></div>
+                <div class="index"><span class="cur">12</span> / <span class="total">12</span></div>
             </div>
             <div class="watermark" style="top: 4%; left: -30px;">build.</div>
             <div class="slide-body final">
